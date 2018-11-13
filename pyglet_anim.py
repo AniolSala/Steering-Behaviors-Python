@@ -24,15 +24,15 @@ class MyWindow(pyglet.window.Window):
         self.maxpoison = 40
 
         # Arrow list
-        for _ in range(100):
+        for _ in range(10):
             self.arrowlist.append(
                 Arrow(random.randint(self.width), random.randint(self.height)))
         # Food list
-        for i in range(self.maxfood):
+        for _ in range(self.maxfood):
             self.foodlist.append(
                 Food(random.randint(self.width), random.randint(self.height)))
         # Poison list:
-        for i in range(self.maxpoison):
+        for _ in range(self.maxpoison):
             self.poisonlist.append(
                 Poison(random.randint(self.width), random.randint(self.height)))
 

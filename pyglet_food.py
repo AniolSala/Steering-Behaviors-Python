@@ -3,6 +3,7 @@ from numpy import array, pi, linspace, sin, cos
 
 
 class Food():
+
     def __init__(self, x, y, color=[0, 1, 0, .7]):
         self.pos = array((x, y))
         self.r = 4
@@ -16,7 +17,9 @@ class Food():
         self.vertices = pyglet.graphics.vertex_list(N, ('v2f', self.vlist),
                                                     ('c4f', self.clist))
 
+
 class Poison():
+    
     def __init__(self, x, y, color=[1, 0, 0, .7]):
         self.pos = array((x, y))
         self.r = 4
