@@ -1,4 +1,3 @@
-# from pyglet.gl import *
 import pyglet
 import numpy as np
 from numpy.linalg import norm
