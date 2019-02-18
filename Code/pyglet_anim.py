@@ -1,7 +1,7 @@
 import pyglet
 import pyglet.gl
 from pyglet.window import mouse, key
-from pyglet_arrow_2 import Arrow
+from pyglet_arrow import Arrow
 from numpy import array, ones, pi, random, linspace, sin, cos, angle, loadtxt, savetxt, exp
 from numpy.linalg import norm
 from pyglet_food import Food, Poison
@@ -13,30 +13,27 @@ class MyWindow(pyglet.window.Window):
         super().__init__(*args, **kwargs)
         self.fps_display = pyglet.window.FPSDisplay(self)
         self.count = 1
-        self.nfood = lambda ngen: (self.maxfood - 20) / ngen + 20
-        self.npois = lambda ngen: self.maxpoison
-
         self.dnalist = []
         self.maxforce = .5
         self.showdna = 1
 
-        self.maxfood = 40
+        self.maxfood = 15
         self.maxpoison = 40
 
         # Scale the dna[2:]
-        self.scale = 1.5
+        self.scale = 1  # 200
 
         # Arrow list
         self.arrowlist = [Arrow(random.randint(
-            self.width), random.randint(self.height)) for _ in range(50)]
+            self.width), random.randint(self.height)) for _ in range(4)]
 
         # Food list
         self.foodlist = [Food(random.randint(self.width), random.randint(
-            self.height)) for i in range(self.maxfood)]
+            self.height)) for i in range(self.maxfood * 2)]
 
         # Poison list
         self.poisonlist = [Poison(random.randint(self.width), random.randint(
-            self.height)) for i in range(self.maxfood)]
+            self.height)) for i in range(self.maxpoison)]
 
     def steerForce(self, arrow, target):
         if not target or not arrow:
@@ -100,7 +97,8 @@ class MyWindow(pyglet.window.Window):
         health of the arrow is less than 0.5, it can not
         clone.'''
 
-        if random.rand() < 0.0015 * (arrow.health - .3) / .7:
+        clone_rate = 0.00005 * (arrow.health - .3) / .7
+        if random.rand() < clone_rate:
             self.arrowlist.append(
                 Arrow(arrow.center[0], arrow.center[1], dna=arrow.dna))
 
@@ -263,7 +261,7 @@ class MyWindow(pyglet.window.Window):
             self.dnalist.append(dna)
 
     def printdna(self):
-        print(self.dnalist)
+        print('The dan is:', self.dnalist)
 
     def update(self, dt):
         for arrow in self.arrowlist:
@@ -271,10 +269,10 @@ class MyWindow(pyglet.window.Window):
             self.clone(arrow)
 
         # Adding new food and poison:
-        if random.rand() < 0.12 and len(self.foodlist) <= self.nfood(self.count):
+        if random.rand() < 0.12 and len(self.foodlist) <= self.maxfood:
             self.foodlist.append(
                 Food(random.randint(self.width), random.randint(self.height)))
-        if random.rand() < 0.1 and len(self.poisonlist) <= self.nfood(self.count):
+        if random.rand() < 0.1 and len(self.poisonlist) <= self.maxpoison:
             self.poisonlist.append(
                 Poison(random.randint(self.width), random.randint(self.height)))
 
@@ -285,7 +283,6 @@ class MyWindow(pyglet.window.Window):
                     random.randint(self.width), random.randint(self.height), dna=dna))
 
             self.count += 1
-            print(self.count)
 
 
 if __name__ == '__main__':

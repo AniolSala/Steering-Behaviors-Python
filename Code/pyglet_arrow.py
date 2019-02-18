@@ -1,13 +1,13 @@
 # from pyglet.gl import *
 import pyglet
-from numpy import array, angle, pi, random, inf, argsort, zeros
+import numpy as np
 from numpy.linalg import norm
 
 
 class Arrow():
-    def __init__(self, posx, posy, dna=None * 4, color=[0, 1.0, 0, .4], *args, **kargs):
+    def __init__(self, posx, posy, dna=None, color=[0, 1.0, 0, .4], *args, **kargs):
         self.s = 25.
-        self._dna = dna
+        self.dna = dna
 
         # It will also have a healt:
         self.health = 1.
@@ -15,34 +15,45 @@ class Arrow():
 
         # Arrow's physical features and drawing:
         self.maxspeed = 6
-        self.speed = (array((random.rand(), random.rand()))
+        self.speed = (np.array((np.random.rand(), np.random.rand()))
                       * 2 - 1.) * self.maxspeed
-        self.accel = array((0., 0.))
+        self.accel = np.array((0., 0.))
         self.clist = color * 3
-        self.center = array((posx, posy - self.s / 6))
-        self.vlist = array([posx - self.s / 4, posy - self.s / 2,
-                            posx + self.s / 4, posy - self.s / 2,
-                            posx, posy + self.s / 2])
+        self.center = np.array((posx, posy - self.s / 6))
+        self.vlist = np.array([posx - self.s / 4, posy - self.s / 2,
+                               posx + self.s / 4, posy - self.s / 2,
+                               posx, posy + self.s / 2])
         self.vertices = pyglet.graphics.vertex_list(3, ('v2f', self.vlist),
                                                     ('c4f', self.clist))
 
     @property
-    def _dna(self):
+    def dna(self):
         return self.__dna
 
-    @_dna.setter
-    def _dna(self, new_dna):
+    @dna.setter
+    def dna(self, new_dna):
         if new_dna is not None:
             # Modifying its DNA
             mutation_rate = .05
-            self.__dna = new_dna + np.array([np.random.rand() if np.random.rand()
-                                             < mutation_rate else 0 for _ in range(4)])
-            print('New dna is:', self.__dna)
+
+            # Attraction / repulsion parts
+            force_dna_mutation = [np.random.rand(
+            ) * .5 - .5 if np.random.rand() < mutation_rate else 0 for _ in range(2)]
+
+            # Food / poison perception parts
+            perception_dna_mutation = [np.random.rand(
+            ) * 20. - 10. if np.random.rand() < mutation_rate else 0 for _ in range(2)]
+
+            self.__dna = np.zeros(4)
+            self.__dna[:2] = new_dna[:2] + force_dna_mutation
+            self.__dna[2:] = new_dna[2:] + perception_dna_mutation
+
         else:
+            self.__dna = np.zeros(4)
             # If the arrow has no dna create one
-            sigma = .2
-            self.__dna = sigma * np.random.randn(4)
-            print('Creating new dna:', self.__dna)
+            self.__dna[:2] = np.random.rand(2) * 4. - 2
+            self.__dna[2:] = np.random.rand(
+                2) * (120. - self.s / 2) + self.s / 2
 
     def seek(self, listel, perception):
         ''' Here the arrow will look for the closest
@@ -52,13 +63,13 @@ class Arrow():
             return None
 
         closestE = None
-        closestD = inf
+        closestD = np.inf
 
         # We will look the vertex closest to the target
         for i in range(0, 5, 2):
             dlist = list(map(lambda thing: norm(
                 thing.pos - self.vlist[i:i + 2]), listel))
-            index = argsort(array(dlist))[0]
+            index = np.argsort(np.array(dlist))[0]
             if dlist[index] <= closestD and dlist[index] <= perception:
                 closestD = dlist[index]
                 closestE = index
@@ -80,18 +91,17 @@ class Arrow():
         return False
 
     def getangle(self):
-        ''' The angle we will rotate the vehicle '''
+        ''' The np.angle we will rotate the vehicle '''
 
         varrow = self.vlist[4:6] - (self.vlist[0:2] + self.vlist[2:4]) / 2.
         v1 = varrow[0] + varrow[1] * 1j
         v2 = self.speed[0] + self.speed[1] * 1j
 
-        theta = (angle(v2) - angle(v1)) * 180. / pi
-        # print(theta)
+        theta = (np.angle(v2) - np.angle(v1)) * 180. / np.pi
         return theta
 
     def update(self, dt):
-        self.health -= 0.005
+        self.health -= 0.002
 
         # Set the color based on its healh label:
         if self.health < .5:
