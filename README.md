@@ -1,5 +1,5 @@
 # Steering-Behaviors-Python
-The code is a Python implementation of this [video]('https://www.youtube.com/watch?v=flxOkx0yLrY&t=') using the Pyglet library. The main idea is that a bunge of entities (arrows)
+The code is a Python implementation of this [video](https://www.youtube.com/watch?v=flxOkx0yLrY&t=) using the Pyglet library. The main idea is that a bunge of entities (arrows)
 have to *eat* green targets (food) and avoid red targets (poison). Each entitie has a *dna* that contains four qualities:
 
 * Food attraction
